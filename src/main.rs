@@ -1,36 +1,47 @@
-use std::io;
+use std::io::{self, Write};
+
+mod combat;
+mod enemy;
+mod player;
+mod utils;
 
 fn main() {
-    let name_user: String = greetings();
-}
+    let name_user = utils::greetings();
+    let mut player = utils::choose_attributes(name_user);
 
-fn greetings() -> String {
-    println!("Bem-vindo ao RPG SB Tecnologia.");
-
-    let mut name = String::new();
-    let stdin = io::stdin();
+    println!("\nSua jornada começa agora, {}!", player.name);
 
     loop {
-        println!("Adicione o seu nome:");
+        if !player.is_alive() {
+            break;
+        }
 
-        name.clear();
+        println!("\n========= MENU PRINCIPAL =========");
+        println!("[1] Ver Estatísticas");
+        println!("[2] Batalhar");
+        println!("[3] Ir no Mercado");
+        println!("[4] Sair do Jogo");
+        print!("O que você quer fazer? ");
+        io::stdout().flush().unwrap();
 
-        stdin.read_line(&mut name).expect("Erro ao ler a linha");
+        let mut choice = String::new();
+        io::stdin().read_line(&mut choice).expect("Erro");
 
-        let name = name.trim();
-
-        let total_letters_name = name.chars().count();
-
-        match total_letters_name {
-            n if n < 2 => {
-                println!("Nome muito curto, precisa de pelo menos 2 dígitos");
+        match choice.trim() {
+            "1" => player.show_status(),
+            "2" => combat::start_campaign(&mut player),
+            "3" => {
+                println!(
+                    "\nVocê chegou no mercado, mas o vendedor está dormindo. Volte mais tarde!"
+                );
             }
-            2..=100 => {
-                return name.to_string();
+            "4" => {
+                println!("\nAté a próxima aventura!");
+                break;
             }
-            _ => {
-                println!("Nome muito longo, no máximo 100 dígitos",);
-            }
+            _ => println!("\nOpção inválida. Tente novamente."),
         }
     }
+
+    println!("\nObrigado por jogar o RPG SB Tecnologia!");
 }
