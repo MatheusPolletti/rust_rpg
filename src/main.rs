@@ -2,6 +2,7 @@ use std::io::{self, Write};
 
 mod combat;
 mod enemy;
+mod market;
 mod player;
 mod utils;
 
@@ -18,7 +19,7 @@ fn main() {
 
         println!("\n========= MENU PRINCIPAL =========");
         println!("[1] Ver Estatísticas");
-        println!("[2] Batalhar");
+        println!("[2] Se aventurar no bosque maldito");
         println!("[3] Ir no Mercado");
         println!("[4] Sair do Jogo");
         print!("O que você quer fazer? ");
@@ -30,11 +31,7 @@ fn main() {
         match choice.trim() {
             "1" => player.show_status(),
             "2" => combat::start_campaign(&mut player),
-            "3" => {
-                println!(
-                    "\nVocê chegou no mercado, mas o vendedor está dormindo. Volte mais tarde!"
-                );
-            }
+            "3" => market::visit(&mut player),
             "4" => {
                 println!("\nAté a próxima aventura!");
                 break;

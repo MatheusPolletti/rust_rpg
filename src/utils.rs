@@ -5,6 +5,7 @@ pub fn choose_attributes(name: String) -> Player {
     let mut points: u32 = 10;
     let strength: u32;
     let mana: u32;
+    let charisma: u32;
 
     println!("\nOlá {name}, você tem {points} pontos para distribuir.");
 
@@ -23,54 +24,66 @@ pub fn choose_attributes(name: String) -> Player {
                 points -= valor;
                 break;
             }
-            Ok(_) => {
-                println!(
-                    "Você não tem pontos suficientes para isso! Máximo: {}",
-                    points
-                );
-            }
-            Err(_) => {
-                println!("Por favor, digite um número válido!");
-            }
+            Ok(_) => println!(
+                "Você não tem pontos suficientes para isso! Máximo: {}",
+                points
+            ),
+            Err(_) => println!("Por favor, digite um número válido!"),
         }
     }
 
-    loop {
+    if points > 0 {
+        loop {
+            println!("\nDiga de 0 a {} quanto de Mana você quer:", points);
+
+            let mut input = String::new();
+            io::stdin().read_line(&mut input).expect("Erro ao ler");
+
+            match input.trim().parse::<u32>() {
+                Ok(valor) if valor <= points => {
+                    mana = valor;
+                    points -= valor;
+                    break;
+                }
+                Ok(_) => println!("Você não tem pontos suficientes para isso!"),
+                Err(_) => println!("Por favor, digite um número válido!"),
+            }
+        }
+    } else {
+        mana = 0;
+    }
+
+    if points > 0 {
+        loop {
+            println!("\nDiga de 0 a {} quanto de Carisma você quer:", points);
+
+            let mut input = String::new();
+            io::stdin().read_line(&mut input).expect("Erro ao ler");
+
+            match input.trim().parse::<u32>() {
+                Ok(valor) if valor <= points => {
+                    charisma = valor;
+                    points -= valor;
+                    break;
+                }
+                Ok(_) => println!("Você não tem pontos suficientes para isso!"),
+                Err(_) => println!("Por favor, digite um número válido!"),
+            }
+        }
+    } else {
+        charisma = 0;
+    }
+
+    if points > 0 {
         println!(
-            "\nDiga de 0 a {} quanto de Mana você quer (o resto virará vida extra):",
+            "\nVocê deixou {} pontos sem gastar! Eles foram perdidos.",
             points
         );
-
-        let mut input = String::new();
-        io::stdin().read_line(&mut input).expect("Erro ao ler");
-
-        match input.trim().parse::<u32>() {
-            Ok(valor) if valor <= points => {
-                mana = valor;
-                points -= valor;
-                break;
-            }
-            Ok(_) => {
-                println!("Você não tem pontos suficientes para isso!");
-            }
-            Err(_) => {
-                println!("Por favor, digite um número válido!");
-            }
-        }
-    }
-
-    let extra_health = points;
-
-    if extra_health > 0 {
-        println!(
-            "\nVocê guardou {} pontos! Eles foram convertidos em Vida Extra.",
-            extra_health
-        );
     } else {
-        println!("\nVocê gastou todos os seus pontos em Força e Mana.");
+        println!("\nVocê gastou todos os seus pontos de atributos.");
     }
 
-    Player::new(name, strength, mana, extra_health)
+    Player::new(name, strength, mana, charisma)
 }
 
 pub fn greetings() -> String {
