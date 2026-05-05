@@ -1,3 +1,5 @@
+use std::io::{self, Write};
+
 pub struct Player {
     pub name: String,
     pub sword_name: String,
@@ -22,11 +24,11 @@ impl Player {
         Self {
             name,
             sword_name: "Espada de Madeira".to_string(),
-            sword_damage: 4,
+            sword_damage: 2,
             strength: str,
             max_strength: 100,
             mana: mn,
-            max_mana: 10,
+            max_mana: mn,
             mana_damage: 5,
             charisma: cha,
             max_charisma: 20,
@@ -85,14 +87,82 @@ impl Player {
         self.xp += xp_gained;
         println!("Você ganhou {} de XP!", xp_gained);
 
-        if self.xp >= 100 {
+        while self.xp >= 100 {
             self.level += 1;
             self.xp -= 100;
             self.max_health += 5;
+
             self.mana = self.max_mana;
             self.health = self.max_health;
-            self.strength += 1;
-            println!("LEVEL UP! Você alcançou o nível {}!", self.level);
+
+            println!("\n🎉 LEVEL UP! Você alcançou o nível {}!", self.level);
+
+            self.distribute_points(self.level.saturating_div(2));
+        }
+    }
+
+    fn distribute_points(&mut self, mut points: u32) {
+        println!("{}", points);
+        println!("Sua vida máxima aumentou e você foi totalmente curado!");
+
+        while points > 0 {
+            println!("\nVocê tem {} ponto(s) para distribuir.", points);
+            println!(
+                "[1] +1 Força (Atual: {}/{})",
+                self.strength, self.max_strength
+            );
+            println!("[2] +1 Mana Máxima (Atual: {})", self.max_mana);
+            println!(
+                "[3] +1 Dano de mana (Requer 2 Pontos) (Dano Atual: {})",
+                self.mana_damage
+            );
+            println!(
+                "[4] +1 Carisma (Atual: {}/{})",
+                self.charisma, self.max_charisma
+            );
+            print!("Onde deseja investir? ");
+            io::stdout().flush().unwrap();
+
+            let mut input = String::new();
+            io::stdin().read_line(&mut input).expect("Erro ao ler");
+
+            match input.trim() {
+                "1" => {
+                    if self.strength < self.max_strength {
+                        self.strength += 1;
+                        points -= 1;
+                        println!("Força aumentada!");
+                    } else {
+                        println!("Sua Força já está no máximo!");
+                    }
+                }
+                "2" => {
+                    self.max_mana += 1;
+                    self.mana += 1;
+                    points -= 1;
+                    println!("Mana Máxima aumentada!");
+                }
+                "3" => {
+                    if points >= 2 {
+                        points -= 2;
+                        self.mana_damage += 2;
+                        println!("Dano aumentado para {}", self.mana_damage);
+                    } else {
+                        println!("Precisa de 2 pontos de xp para aumentar o dano");
+                        continue;
+                    }
+                }
+                "4" => {
+                    if self.charisma < self.max_charisma {
+                        self.charisma += 1;
+                        points -= 1;
+                        println!("Carisma aumentado!");
+                    } else {
+                        println!("Seu Carisma já está no máximo!");
+                    }
+                }
+                _ => println!("Opção inválida. Escolha 1, 2 ou 3."),
+            }
         }
     }
 }

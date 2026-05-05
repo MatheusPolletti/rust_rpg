@@ -2,6 +2,8 @@ use crate::enemy::Enemy;
 use crate::player::Player;
 use rand::Rng;
 use std::io::{self, Write};
+use std::thread;
+use std::time::Duration;
 
 pub fn start_campaign(player: &mut Player) {
     let mut enemy = Enemy::spawn_random(player.level);
@@ -26,6 +28,7 @@ pub fn start_campaign(player: &mut Player) {
             "[3] Usar Poção (Restam: {}, Recupera 15 de Vida)",
             player.potion
         );
+        println!("[4] Fugir da Batalha");
 
         print!("Sua ação: ");
         io::stdout().flush().unwrap();
@@ -65,6 +68,44 @@ pub fn start_campaign(player: &mut Player) {
                 } else {
                     println!("\nVocê revirou a mochila, mas não encontrou nenhuma poção!");
                     continue;
+                }
+            }
+            "4" => {
+                println!("\n🏃 Você entra em pânico, vira as costas e corre desesperadamente!");
+
+                for _ in 0..10 {
+                    print!("💨");
+                    io::stdout().flush().unwrap();
+                    thread::sleep(Duration::from_millis(150));
+                }
+
+                let mut rng = rand::thread_rng();
+
+                if rng.gen_bool(0.8) {
+                    let coins_lost = if player.coins > 0 {
+                        rng.gen_range(1..=player.coins / 2 + 1).min(player.coins)
+                    } else {
+                        0
+                    };
+                    let potions_lost = if player.potion > 0 {
+                        rng.gen_range(0..=2).min(player.potion)
+                    } else {
+                        0
+                    };
+
+                    player.coins = player.coins.saturating_sub(coins_lost);
+                    player.potion = player.potion.saturating_sub(potions_lost);
+
+                    println!(
+                        "\nVocê conseguiu despistar o inimigo! \n\
+                            Mas o preço foi alto... No meio da confusão, você deixou cair 💰 {} moedas e 🧪 {} poções.",
+                        coins_lost, potions_lost
+                    );
+
+                    break;
+                } else {
+                    println!("\n❌ Você tropeçou em uma raiz e o inimigo bloqueou sua saída!");
+                    println!("A fuga falhou! Prepare-se para o contra-ataque.");
                 }
             }
             _ => {

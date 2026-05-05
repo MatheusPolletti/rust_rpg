@@ -3,6 +3,7 @@ use std::io::{self, Write};
 mod combat;
 mod enemy;
 mod market;
+mod meditation;
 mod player;
 mod utils;
 
@@ -21,7 +22,8 @@ fn main() {
         println!("[1] Ver Estatísticas");
         println!("[2] Se aventurar no bosque maldito");
         println!("[3] Ir no Mercado");
-        println!("[4] Sair do Jogo");
+        println!("[4] Ir ao Templo da Clareza");
+        println!("[5] Sair do Jogo");
         print!("O que você quer fazer? ");
         io::stdout().flush().unwrap();
 
@@ -32,7 +34,8 @@ fn main() {
             "1" => player.show_status(),
             "2" => combat::start_campaign(&mut player),
             "3" => market::visit(&mut player),
-            "4" => {
+            "4" => meditation::go_to_temple(&mut player),
+            "5" => {
                 println!("\nAté a próxima aventura!");
                 break;
             }
