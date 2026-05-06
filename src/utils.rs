@@ -1,118 +1,128 @@
 use crate::player::Player;
-use std::io;
+use std::io::{self, Write};
+
+pub fn clear_console() {
+    print!("\x1B[2J\x1B[1;1H");
+
+    io::stdout().flush().unwrap();
+}
+
+pub fn press_enter_to_continue() {
+    print!("\n[Pressione Enter para continuar...]");
+
+    io::stdout().flush().unwrap();
+
+    let mut _temp = String::new();
+
+    io::stdin().read_line(&mut _temp).unwrap_or(0);
+}
+
+pub fn read_input(prompt: &str) -> String {
+    print!("{}", prompt);
+
+    io::stdout().flush().unwrap();
+
+    let mut input = String::new();
+
+    io::stdin().read_line(&mut input).unwrap_or(0);
+
+    input.trim().to_string()
+}
+
+pub fn greetings() -> String {
+    clear_console();
+
+    println!("⚔️  BEM-VINDO AO RPG SB TECNOLOGIA ⚔️");
+    println!("Uma jornada de glória e perigos aguarda você.\n");
+
+    loop {
+        let name = read_input("Qual o nome do seu herói? ");
+        let total_letters_name = name.chars().count();
+
+        match total_letters_name {
+            n if n < 2 => println!("❌ O nome é muito curto. Precisa ter pelo menos 2 letras!"),
+            2..=100 => return name,
+            _ => println!("❌ O nome é muito longo. Máximo de 100 caracteres!"),
+        }
+    }
+}
 
 pub fn choose_attributes(name: String) -> Player {
     let mut points: u32 = 10;
     let strength: u32;
-    let mana: u32;
-    let charisma: u32;
+    let mut mana: u32 = 0;
+    let mut charisma: u32 = 0;
 
-    println!("\nOlá {name}, você tem {points} pontos para distribuir.");
+    clear_console();
+    println!(
+        "Saudações, {}! Os deuses lhe concederam {} pontos para moldar seu destino.",
+        name, points
+    );
 
     loop {
-        println!("Diga de 1 a {} quanto de Força você quer:", points);
+        println!("\n💪 Pontos restantes: {}", points);
+        let input = read_input("Quantos pontos deseja investir em FORÇA? ");
 
-        let mut input = String::new();
-        io::stdin().read_line(&mut input).expect("Erro ao ler");
-
-        match input.trim().parse::<u32>() {
-            Ok(0) => {
-                println!("Você precisa investir pelo menos 1 ponto!");
-            }
+        match input.parse::<u32>() {
+            Ok(0) => println!(
+                "⚠️ Um herói sem força não levanta uma espada! Invista pelo menos 1 ponto."
+            ),
             Ok(valor) if valor <= points => {
                 strength = valor;
                 points -= valor;
                 break;
             }
-            Ok(_) => println!(
-                "Você não tem pontos suficientes para isso! Máximo: {}",
-                points
-            ),
-            Err(_) => println!("Por favor, digite um número válido!"),
+            Ok(_) => println!("❌ Você não tem pontos suficientes para isso!"),
+            Err(_) => println!("❌ Por favor, digite um número válido!"),
         }
     }
 
+    // Loop de Mana
     if points > 0 {
         loop {
-            println!("\nDiga de 0 a {} quanto de Mana você quer:", points);
+            println!("\n✨ Pontos restantes: {}", points);
+            let input = read_input("Quantos pontos deseja investir em MANA? ");
 
-            let mut input = String::new();
-            io::stdin().read_line(&mut input).expect("Erro ao ler");
-
-            match input.trim().parse::<u32>() {
+            match input.parse::<u32>() {
                 Ok(valor) if valor <= points => {
                     mana = valor;
                     points -= valor;
                     break;
                 }
-                Ok(_) => println!("Você não tem pontos suficientes para isso!"),
-                Err(_) => println!("Por favor, digite um número válido!"),
+                Ok(_) => println!("❌ Você não tem pontos suficientes!"),
+                Err(_) => println!("❌ Por favor, digite um número válido!"),
             }
         }
-    } else {
-        mana = 0;
     }
 
+    // Loop de Carisma
     if points > 0 {
         loop {
-            println!("\nDiga de 0 a {} quanto de Carisma você quer:", points);
+            println!("\n🗣️ Pontos restantes: {}", points);
+            let input = read_input("Quantos pontos deseja investir em CARISMA? ");
 
-            let mut input = String::new();
-            io::stdin().read_line(&mut input).expect("Erro ao ler");
-
-            match input.trim().parse::<u32>() {
+            match input.parse::<u32>() {
                 Ok(valor) if valor <= points => {
                     charisma = valor;
                     points -= valor;
                     break;
                 }
-                Ok(_) => println!("Você não tem pontos suficientes para isso!"),
-                Err(_) => println!("Por favor, digite um número válido!"),
+                Ok(_) => println!("❌ Você não tem pontos suficientes!"),
+                Err(_) => println!("❌ Por favor, digite um número válido!"),
             }
         }
-    } else {
-        charisma = 0;
     }
 
+    clear_console();
     if points > 0 {
         println!(
-            "\nVocê deixou {} pontos sem gastar! Eles foram perdidos.",
+            "⚠️ Você deixou {} pontos sem gastar! Eles se perderam no éter...",
             points
         );
     } else {
-        println!("\nVocê gastou todos os seus pontos de atributos.");
+        println!("✅ Atributos definidos com sucesso!");
     }
+    press_enter_to_continue();
 
     Player::new(name, strength, mana, charisma)
-}
-
-pub fn greetings() -> String {
-    println!("Bem-vindo ao RPG SB Tecnologia.");
-
-    let mut name = String::new();
-    let stdin = io::stdin();
-
-    loop {
-        println!("Adicione o seu nome:");
-
-        name.clear();
-
-        stdin.read_line(&mut name).expect("Erro ao ler a linha");
-
-        let name = name.trim();
-
-        let total_letters_name = name.chars().count();
-
-        match total_letters_name {
-            n if n < 2 => {
-                println!("Nome muito curto, precisa de pelo menos 2 dígitos");
-            }
-            2..=100 => {
-                return name.to_string();
-            }
-            _ => {
-                println!("Nome muito longo, no máximo 100 dígitos",);
-            }
-        }
-    }
 }

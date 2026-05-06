@@ -14,7 +14,7 @@ impl Enemy {
     pub fn take_damage(&mut self, amount: u32) {
         self.health = self.health.saturating_sub(amount);
         println!(
-            "🗡️ {} recebeu {} de dano! (Vida: {})",
+            "🩸 {} sofreu {} de dano! (HP Restante: {})",
             self.name, amount, self.health
         );
     }
@@ -24,11 +24,11 @@ impl Enemy {
 
         let enemy_types = [
             ("Rato Mutante", 8, 1),
-            ("Goblin Ladrão", 12, 2),
+            ("Goblin Gatuno", 12, 2),
             ("Lobo Feroz", 15, 3),
             ("Esqueleto Arqueiro", 14, 3),
             ("Orc Guerreiro", 20, 4),
-            ("Troll das Floresta", 30, 5),
+            ("Troll da Floresta", 30, 5),
             ("Lorde Demônio", 40, 7),
         ];
 
@@ -38,11 +38,11 @@ impl Enemy {
         let variance = rng.gen_range(80..=120);
         let randomized_health = (base_health * variance) / 100;
 
-        let level_multiplier = player_level - 1;
+        let level_multiplier = player_level.saturating_sub(1);
         let final_health = randomized_health + (randomized_health * level_multiplier * 30 / 100);
         let final_damage = base_damage + level_multiplier;
 
-        let final_name = format!("{} Nv.{}", base_name, player_level);
+        let final_name = format!("{} [Nv.{}]", base_name, player_level);
 
         Self {
             name: final_name,

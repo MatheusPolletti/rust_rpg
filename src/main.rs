@@ -1,5 +1,3 @@
-use std::io::{self, Write};
-
 mod combat;
 mod enemy;
 mod market;
@@ -11,37 +9,47 @@ fn main() {
     let name_user = utils::greetings();
     let mut player = utils::choose_attributes(name_user);
 
-    println!("\nSua jornada começa agora, {}!", player.name);
-
     loop {
         if !player.is_alive() {
+            utils::clear_console();
+            println!("\n💀 FIM DE JOGO 💀");
+            println!("Obrigado por jogar o RPG SB Tecnologia!");
             break;
         }
 
-        println!("\n========= MENU PRINCIPAL =========");
-        println!("[1] Ver Estatísticas");
-        println!("[2] Se aventurar no bosque maldito");
-        println!("[3] Ir no Mercado");
-        println!("[4] Ir ao Templo da Clareza");
-        println!("[5] Sair do Jogo");
-        print!("O que você quer fazer? ");
-        io::stdout().flush().unwrap();
+        utils::clear_console();
+        println!("========= 🏕️  ACAMPAMENTO =========");
+        println!("[1] Ver Estatísticas do Herói");
+        println!("[2] Ver Conquistas do Herói");
+        println!("[3] Se aventurar no Bosque Maldito");
+        println!("[4] Visitar o Mercado Local");
+        println!("[5] Ir ao Templo da Clareza");
+        println!("[6] Sair do Jogo");
+        println!("=====================================");
 
-        let mut choice = String::new();
-        io::stdin().read_line(&mut choice).expect("Erro");
+        let choice = utils::read_input("Onde você deseja ir? ");
 
-        match choice.trim() {
-            "1" => player.show_status(),
-            "2" => combat::start_campaign(&mut player),
-            "3" => market::visit(&mut player),
-            "4" => meditation::go_to_temple(&mut player),
-            "5" => {
-                println!("\nAté a próxima aventura!");
+        match choice.as_str() {
+            "1" => {
+                utils::clear_console();
+                player.show_status();
+                utils::press_enter_to_continue();
+            }
+            "2" => {
+                utils::clear_console();
+                player.show_achievements();
+            }
+            "3" => combat::start_campaign(&mut player),
+            "4" => market::visit(&mut player),
+            "5" => meditation::go_to_temple(&mut player),
+            "6" => {
+                println!("\nAté a próxima aventura, herói!");
                 break;
             }
-            _ => println!("\nOpção inválida. Tente novamente."),
+            _ => {
+                println!("\n❌ Opção inválida! Escolha um destino válido.");
+                utils::press_enter_to_continue();
+            }
         }
     }
-
-    println!("\nObrigado por jogar o RPG SB Tecnologia!");
 }
